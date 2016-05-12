@@ -46,42 +46,49 @@ map! <S-Right>  <Plug>(resizewin-expand-columns)
 
 ## Installation
 
-With [NeoBundle](https://github.com/Shougo/neobundle.vim).
+### With [dein.vim](https://github.com/Shougo/dein.vim)
 
 ```vim
-NeoBundle 'koturn/vim-resizewin'
+call dein#add('koturn/vim-resizewin', {
+      \ 'on_cmd': [
+      \   'Resizewin',
+      \   'ResizewinByOffset',
+      \   'ResizewinStartFullScreen',
+      \   'ResizewinRevertFullScreen',
+      \   'ResizewinToggleFullScreen'
+      \ ],
+      \ 'on_map': '<Plug>(resizewin-',
+      \})
 ```
 
-If you want to use ```:NeoBundleLazy```, write following code in your .vimrc.
+### With [neobundle.vim](https://github.com/Shougo/neobundle.vim)
 
 ```vim
-NeoBundleLazy 'koturn/vim-resizewin'
-if neobundle#tap('vim-resizewin')
-  call neobundle#config({
-        \ 'on_cmd': [
-        \   'Resizewin',
-        \   'ResizewinByOffset',
-        \   'ResizewinStartFullScreen',
-        \   'ResizewinRevertFullScreen',
-        \   'ResizewinToggleFullScreen',
-        \ ],
-        \ 'on_map': '<Plug>(resizewin-',
-        \})
-  call neobundle#untap()
-endif
+NeoBundle 'koturn/vim-resizewin', {
+      \ 'on_cmd': [
+      \   'Resizewin',
+      \   'ResizewinByOffset',
+      \   'ResizewinStartFullScreen',
+      \   'ResizewinRevertFullScreen',
+      \   'ResizewinToggleFullScreen'
+      \ ],
+      \ 'on_map': '<Plug>(resizewin-',
+      \}
 ```
 
-With [Vundle](https://github.com/VundleVim/Vundle.vim).
+### With [Vundle](https://github.com/VundleVim/Vundle.vim).
 
 ```vim
 Plugin 'koturn/vim-resizewin'
 ```
 
-With [vim-plug](https://github.com/junegunn/vim-plug).
+### With [vim-plug](https://github.com/junegunn/vim-plug).
 
 ```vim
 Plug 'koturn/vim-resizewin'
 ```
+
+### Manua install
 
 If you don't want to use plugin manager, put files and directories on
 ```~/.vim/```, or ```%HOME%/vimfiles/``` on Windows.
