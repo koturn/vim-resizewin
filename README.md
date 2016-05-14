@@ -76,13 +76,13 @@ NeoBundle 'koturn/vim-resizewin', {
       \}
 ```
 
-### With [Vundle](https://github.com/VundleVim/Vundle.vim).
+### With [Vundle](https://github.com/VundleVim/Vundle.vim)
 
 ```vim
 Plugin 'koturn/vim-resizewin'
 ```
 
-### With [vim-plug](https://github.com/junegunn/vim-plug).
+### With [vim-plug](https://github.com/junegunn/vim-plug)
 
 ```vim
 Plug 'koturn/vim-resizewin'
