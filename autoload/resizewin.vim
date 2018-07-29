@@ -10,7 +10,7 @@ set cpo&vim
 
 
 let s:is_windows = has('win95') || has('win16') || has('win32') || has('win64')
-if exists($TMUX) || $TERM ==# 'screen' || !s:is_windows && !has('win32unix') && !has('gui_running')
+if exists('$TMUX') || $TERM ==# 'screen' || !s:is_windows && !has('win32unix') && !has('gui_running')
   let s:errmsg = '[resizewin.vim]: This environment is not supported'
   function! resizewin#resize() abort
     echoerr s:errmsg
