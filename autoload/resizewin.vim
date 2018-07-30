@@ -12,25 +12,25 @@ set cpo&vim
 let s:is_windows = has('win95') || has('win16') || has('win32') || has('win64')
 if exists('$TMUX') || $TERM ==# 'screen' || !s:is_windows && !has('win32unix') && !has('gui_running')
   let s:errmsg = '[resizewin.vim]: This environment is not supported'
-  function! resizewin#resize() abort
+  function! resizewin#resize() abort " {{{
     echoerr s:errmsg
-  endfunction
+  endfunction " }}}
 
-  function! resizewin#resize_by_offset(offset_lines, offset_columns) abort
+  function! resizewin#resize_by_offset(offset_lines, offset_columns) abort " {{{
     echoerr s:errmsg
-  endfunction
+  endfunction " }}}
 
-  function! resizewin#start_fullscreen() abort
+  function! resizewin#start_fullscreen() abort " {{{
     echoerr s:errmsg
-  endfunction
+  endfunction " }}}
 
-  function! resizewin#revert_fullscreen() abort
+  function! resizewin#revert_fullscreen() abort " {{{
     echoerr s:errmsg
-  endfunction
+  endfunction " }}}
 
-  function! resizewin#toggle_fullscreen() abort
+  function! resizewin#toggle_fullscreen() abort " {{{
     echoerr s:errmsg
-  endfunction
+  endfunction " }}}
 
   let &cpo = s:save_cpo
   unlet s:save_cpo
@@ -63,7 +63,7 @@ let s:cursorkey_table = {
 let s:resize_action = {}
 let s:is_fullscreen = 0
 
-function! resizewin#resize() abort
+function! resizewin#resize() abort " {{{
   let save_titlestring = &titlestring
   let key = s:getkey()
   let lkey = tolower(key)
@@ -75,9 +75,9 @@ function! resizewin#resize() abort
     let lkey = tolower(key)
   endwhile
   let &titlestring = save_titlestring
-endfunction
+endfunction " }}}
 
-function! resizewin#resize_by_offset(offset_columns, offset_lines) abort
+function! resizewin#resize_by_offset(offset_columns, offset_lines) abort " {{{
   let lines = &lines + a:offset_lines
   let &lines = lines < g:resizewin#min.lines ? g:resizewin#min.lines
         \ : lines > g:resizewin#max.lines ? g:resizewin#max.lines
@@ -86,76 +86,76 @@ function! resizewin#resize_by_offset(offset_columns, offset_lines) abort
   let &columns = columns < g:resizewin#min.columns ? g:resizewin#min.columns
         \ : columns > g:resizewin#max.columns ? g:resizewin#max.columns
         \ : columns
-endfunction
+endfunction " }}}
 
 
-function! resizewin#start_fullscreen() abort
+function! resizewin#start_fullscreen() abort " {{{
   let s:is_fullscreen = 1
   call s:start_fullscreen()
-endfunction
+endfunction " }}}
 
-function! resizewin#revert_fullscreen() abort
+function! resizewin#revert_fullscreen() abort " {{{
   let s:is_fullscreen = 0
   call s:revert_fullscreen()
-endfunction
+endfunction " }}}
 
-function! resizewin#toggle_fullscreen() abort
+function! resizewin#toggle_fullscreen() abort " {{{
   if s:is_fullscreen
     call resizewin#revert_fullscreen()
   else
     call resizewin#start_fullscreen()
   endif
-endfunction
+endfunction " }}}
 
 
-function! s:getkey() abort
+function! s:getkey() abort " {{{
   let key = getchar()
   return type(key) == s:TYPE_INT ? nr2char(key)
         \ : has_key(s:cursorkey_table, key) ? s:cursorkey_table[key]
         \ : 'q'
-endfunction
+endfunction " }}}
 
-function! s:resize_action.h(offset) abort
+function! s:resize_action.h(offset) abort " {{{
   let columns = &columns - a:offset
   let &columns = columns >= g:resizewin#min.columns ? columns : g:resizewin#min.columns
-endfunction
+endfunction " }}}
 
-function! s:resize_action.j(offset) abort
+function! s:resize_action.j(offset) abort " {{{
   let lines = &lines + a:offset
   let &lines = lines <= g:resizewin#max.lines ? lines : g:resizewin#max.lines
-endfunction
+endfunction " }}}
 
-function! s:resize_action.k(offset) abort
+function! s:resize_action.k(offset) abort " {{{
   let lines = &lines - a:offset
   let &lines = lines >= g:resizewin#min.lines ? lines : g:resizewin#min.lines
-endfunction
+endfunction " }}}
 
-function! s:resize_action.l(offset) abort
+function! s:resize_action.l(offset) abort " {{{
   let columns = &columns + a:offset
   let &columns = columns <= g:resizewin#max.columns ? columns : g:resizewin#max.columns
-endfunction
+endfunction " }}}
 
 if executable(g:resizewin#wmctrl)
-  function! s:start_fullscreen() abort
+  function! s:start_fullscreen() abort " {{{
     call s:execute_wmctrl('add')
-  endfunction
-  function! s:revert_fullscreen() abort
+  endfunction " }}}
+  function! s:revert_fullscreen() abort " {{{
     call s:execute_wmctrl('remove')
-  endfunction
-  function! s:execute_wmctrl(mod) abort
+  endfunction " }}}
+  function! s:execute_wmctrl(mod) abort " {{{
     call system(g:resizewin#wmctrl . ' -ir ' . v:windowid . ' -b ' . a:mod . ',fullscreen')
-  endfunction
+  endfunction " }}}
 elseif has('gui_macvim')
   let s:save_fuoptions = &fuoptions
-  function! s:start_fullscreen() abort
+  function! s:start_fullscreen() abort " {{{
     let s:save_fuoptions = &fuoptions
     set fuoptions=maxvert,maxhorz
     set fullscreen
-  endfunction
-  function! s:revert_fullscreen() abort
+  endfunction " }}}
+  function! s:revert_fullscreen() abort " {{{
     set nofullscreen
     let &fuoptions = s:save_fuoptions
-  endfunction
+  endfunction " }}}
 elseif s:is_windows && has('gui_running') && !has('nvim')
   let s:save_guioptions = &guioptions
   if !exists('g:resizewin#gui_config')
@@ -165,7 +165,7 @@ elseif s:is_windows && has('gui_running') && !has('nvim')
         \ {'hide_menubar': 1, 'hide_toolbar': 1, 'hide_caption': 1},
         \ 'keep'
         \)
-  function! s:start_fullscreen() abort
+  function! s:start_fullscreen() abort " {{{
     let s:save_guioptions = &guioptions
     if g:resizewin#gui_config.hide_menubar && &guioptions =~# 'm'
       set guioptions-=m
@@ -177,25 +177,25 @@ elseif s:is_windows && has('gui_running') && !has('nvim')
       set guioptions+=C
     endif
     simalt ~x
-  endfunction
-  function! s:revert_fullscreen() abort
+  endfunction " }}}
+  function! s:revert_fullscreen() abort " {{{
     simalt ~r
     let &guioptions = s:save_guioptions
-  endfunction
+  endfunction " }}}
 else
   let s:winpos_cmd = ''
   let [s:save_lines, s:save_columns] = [&lines, &columns]
-  function! s:start_fullscreen() abort
+  function! s:start_fullscreen() abort " {{{
     let s:winpos_cmd = s:make_winpos_cmd()
     let [s:save_lines, s:save_columns] = [&lines, &columns]
     winpos -8 -8
     winsize 999 999
-  endfunction
-  function! s:revert_fullscreen() abort
+  endfunction " }}}
+  function! s:revert_fullscreen() abort " {{{
     execute s:winpos_cmd
     let [&lines, &columns] = [s:save_lines, s:save_columns]
-  endfunction
-  function! s:make_winpos_cmd()
+  endfunction " }}}
+  function! s:make_winpos_cmd() abort " {{{
     let winpos_cmd = ''
     try
       let [save_verbose, save_verbosefile] = [&verbose, &verbosefile]
@@ -211,17 +211,17 @@ else
       let [&verbose, &verbosefile] = [save_verbose, save_verbosefile]
     endtry
     return winpos_cmd
-  endfunction
-  function! s:restore_terminal() abort
+  endfunction " }}}
+  function! s:restore_terminal() abort " {{{
     if s:is_fullscreen
       let [&lines, &columns] = [s:save_lines, s:save_columns]
       execute s:winpos_cmd
     endif
-  endfunction
-  augroup Resizewin
+  endfunction " }}}
+  augroup Resizewin " {{{
     autocmd!
     autocmd VimLeave * call s:restore_terminal()
-  augroup END
+  augroup END " }}}
 endif
 
 
