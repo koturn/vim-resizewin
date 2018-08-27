@@ -10,7 +10,8 @@ set cpo&vim
 
 
 let s:is_windows = has('win95') || has('win16') || has('win32') || has('win64')
-if exists('$TMUX') || $TERM ==# 'screen' || !s:is_windows && !has('win32unix') && !has('gui_running')
+let s:is_tmux = exists('$TMUX')
+if !s:is_tmux && ($TERM ==# 'screen' || !s:is_windows && !has('win32unix') && !has('gui_running'))
   let s:errmsg = '[resizewin.vim]: This environment is not supported'
   function! resizewin#resize() abort " {{{
     echoerr s:errmsg
@@ -78,14 +79,7 @@ function! resizewin#resize() abort " {{{
 endfunction " }}}
 
 function! resizewin#resize_by_offset(offset_columns, offset_lines) abort " {{{
-  let lines = &lines + a:offset_lines
-  let &lines = lines < g:resizewin#min.lines ? g:resizewin#min.lines
-        \ : lines > g:resizewin#max.lines ? g:resizewin#max.lines
-        \ : lines
-  let columns = &columns + a:offset_columns
-  let &columns = columns < g:resizewin#min.columns ? g:resizewin#min.columns
-        \ : columns > g:resizewin#max.columns ? g:resizewin#max.columns
-        \ : columns
+  call s:resize_by_offset(a:offset_columns, a:offset_lines)
 endfunction " }}}
 
 
@@ -115,25 +109,55 @@ function! s:getkey() abort " {{{
         \ : 'q'
 endfunction " }}}
 
-function! s:resize_action.h(offset) abort " {{{
-  let columns = &columns - a:offset
-  let &columns = columns >= g:resizewin#min.columns ? columns : g:resizewin#min.columns
-endfunction " }}}
-
-function! s:resize_action.j(offset) abort " {{{
-  let lines = &lines + a:offset
-  let &lines = lines <= g:resizewin#max.lines ? lines : g:resizewin#max.lines
-endfunction " }}}
-
-function! s:resize_action.k(offset) abort " {{{
-  let lines = &lines - a:offset
-  let &lines = lines >= g:resizewin#min.lines ? lines : g:resizewin#min.lines
-endfunction " }}}
-
-function! s:resize_action.l(offset) abort " {{{
-  let columns = &columns + a:offset
-  let &columns = columns <= g:resizewin#max.columns ? columns : g:resizewin#max.columns
-endfunction " }}}
+if s:is_tmux
+  function! s:resize_action.h(offset) abort " {{{
+    call system('tmux resize-pane -x ' . max([2, g:resizewin#min.columns, &columns - a:offset]))
+  endfunction " }}}
+  function! s:resize_action.j(offset) abort " {{{
+    call system('tmux resize-pane -y ' . min([g:resizewin#max.lines, &lines + a:offset]))
+  endfunction " }}}
+  function! s:resize_action.k(offset) abort " {{{
+    call system('tmux resize-pane -y ' . max([2, g:resizewin#min.lines, &lines - a:offset]))
+  endfunction " }}}
+  function! s:resize_action.l(offset) abort " {{{
+    call system('tmux resize-pane -x ' . min([g:resizewin#max.columns, &columns + a:offset]))
+  endfunction " }}}
+  function! s:resize_by_offset(offset_columns, offset_lines) abort " {{{
+    if a:offset_columns != 0
+      call system('tmux resize-pane ' . (a:offset_columns > 0 ? ('-R ' . a:offset_columns) : ('-L ' . -a:offset_columns)))
+    endif
+    if a:offset_lines != 0
+      call system('tmux resize-pane ' . (a:offset_lines > 0 ? ('-D ' . a:offset_lines) : ('-U ' . -a:offset_lines)))
+    endif
+  endfunction " }}}
+else
+  function! s:resize_action.h(offset) abort " {{{
+    let columns = &columns - a:offset
+    let &columns = columns >= g:resizewin#min.columns ? columns : g:resizewin#min.columns
+  endfunction " }}}
+  function! s:resize_action.j(offset) abort " {{{
+    let lines = &lines + a:offset
+    let &lines = lines <= g:resizewin#max.lines ? lines : g:resizewin#max.lines
+  endfunction " }}}
+  function! s:resize_action.k(offset) abort " {{{
+    let lines = &lines - a:offset
+    let &lines = lines >= g:resizewin#min.lines ? lines : g:resizewin#min.lines
+  endfunction " }}}
+  function! s:resize_action.l(offset) abort " {{{
+    let columns = &columns + a:offset
+    let &columns = columns <= g:resizewin#max.columns ? columns : g:resizewin#max.columns
+  endfunction " }}}
+  function! s:resize_by_offset(offset_columns, offset_lines) abort " {{{
+    let lines = &lines + a:offset_lines
+    let &lines = lines < g:resizewin#min.lines ? g:resizewin#min.lines
+          \ : lines > g:resizewin#max.lines ? g:resizewin#max.lines
+          \ : lines
+    let columns = &columns + a:offset_columns
+    let &columns = columns < g:resizewin#min.columns ? g:resizewin#min.columns
+          \ : columns > g:resizewin#max.columns ? g:resizewin#max.columns
+          \ : columns
+  endfunction " }}}
+endif
 
 if executable(g:resizewin#wmctrl)
   function! s:start_fullscreen() abort " {{{
@@ -144,6 +168,13 @@ if executable(g:resizewin#wmctrl)
   endfunction " }}}
   function! s:execute_wmctrl(mod) abort " {{{
     call system(g:resizewin#wmctrl . ' -ir ' . v:windowid . ' -b ' . a:mod . ',fullscreen')
+  endfunction " }}}
+elseif s:is_tmux
+  function! s:start_fullscreen() abort " {{{
+    call system('tmux resize-pane -Z')
+  endfunction " }}}
+  function! s:revert_fullscreen() abort " {{{
+    call system('tmux resize-pane -Z')
   endfunction " }}}
 elseif has('gui_macvim')
   let s:save_fuoptions = &fuoptions
